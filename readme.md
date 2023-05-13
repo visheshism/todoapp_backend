@@ -1,7 +1,7 @@
 # TodoApp API Documentation
 
 ## Introduction
-This API serves as the backend for TodoApp. It provides functionality to manage todo items. (Add more information here as needed)
+This API serves as the backend for TodoApp. It provides functionality to manage todo items.
 
 ## Installation
 To install the necessary dependencies, run the following command:
