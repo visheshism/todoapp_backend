@@ -16,6 +16,6 @@ TodoRouter.route("/todos/:categ_name")
     .get(isAuthenticated, getAllByCateg)
     .delete(isAuthenticated, deleteAllByCateg)
 
-TodoRouter.get("/search?", isAuthenticated, searchTodos)
+TodoRouter.get("/search", isAuthenticated, searchTodos)
 
 export default TodoRouter
