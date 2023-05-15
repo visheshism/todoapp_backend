@@ -4,6 +4,9 @@
   "description": "backend project for the todoapp",
   "type": "module",
   "main": "server.js",
+  "engines": {
+    "node": ">=14.20.1"
+  },
   "scripts": {
     "start": "node server.js"
   },
