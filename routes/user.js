@@ -12,9 +12,7 @@ UserRouter.put("/update", isAuthenticated, updateProp)
 
 UserRouter.get("/logout", isAuthenticated, logoutUser)
 
-UserRouter.get("/confirm", confirmUser)
-
-UserRouter.get("/confirm_email", userConfirmationMail)
+UserRouter.route("/confirm_email").get(userConfirmationMail).post(confirmUser)
 
 UserRouter.route("/me").get(isAuthenticated, getUserDetails).delete(isAuthenticated, deleteUser)
 

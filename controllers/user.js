@@ -50,7 +50,7 @@ export const userConfirmationMail = catchAsyncError(async (req, res, next) => {
     const isExists = await confirmEmail.findOne({ userIty: user.userIty })
 
     if (!isExists) {
-        const newConfirmEmailDoc = await confirmEmail.create({ userIty: user.userIty, token: genRandom(23), expiry_time: Date.now() + (60 * 60 + 1000) })
+        const newConfirmEmailDoc = await confirmEmail.create({ userIty: user.userIty, token: genRandom(23), expiry_time: Date.now() + (60 * 60 * 1000) })
         sendConfirmationEmail(url, user.email, newConfirmEmailDoc.token, 0)
         return res.status(200).json({ success: true, message: "Confirmation mail sent, Check your registered email ! ", confirmEmailDoc: newConfirmEmailDoc })
     }
