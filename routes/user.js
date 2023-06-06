@@ -14,6 +14,8 @@ UserRouter.get("/logout", isAuthenticated, logoutUser)
 
 UserRouter.route("/confirm_email").get(userConfirmationMail).post(confirmUser)
 
+UserRouter.route("/reset_password").get(resetPasswordEmail).post(resetPass)
+
 UserRouter.route("/me").get(isAuthenticated, getUserDetails).delete(isAuthenticated, deleteUser)
 
 export default UserRouter

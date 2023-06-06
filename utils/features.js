@@ -44,7 +44,30 @@ export const genRandom = (length) => {
     return arr
 }
 
+export const generateUniqueNumbers = (length) => {
+    if (length <= 0) {
+        return '';
+    }
+
+    let result = '';
+    let previousDigit = null;
+
+    for (let i = 0; i < length; i++) {
+        let digit;
+
+        do {
+            digit = Math.floor(Math.random() * 10).toString();
+        } while (digit === previousDigit);
+
+        result += digit;
+        previousDigit = digit;
+    }
+
+    return result;
+}
+
 export const currentDateTime = () => {
+    // Indian Standard Time (GMT + 5:30)
     var today = new Date(new Date().setHours(new Date().getHours() + 5, new Date().getMinutes() + 30));
     var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();

@@ -4,7 +4,7 @@ import { Categ } from "../models/category.js";
 import { Todo } from "../models/todo.js";
 import { User } from "../models/user.js";
 import bcrypt from "bcrypt";
-import { genRandom, genUserIty,currentDateTime } from "../utils/features.js";
+import { genRandom, genUserIty, currentDateTime } from "../utils/features.js";
 import { confirmEmail } from "../models/confirm_email.js";
 import { sendConfirmationEmail } from "../utils/email.js";
 
@@ -95,6 +95,53 @@ export const confirmUser = catchAsyncError(async (req, res, next) => {
         })
     }
     throw new errHandler("Token is expired, place a new request or contact the Administrator")
+})
+
+export const resetPasswordEmail = catchAsyncError(async (req, res, next) => {
+    const { mail: email } = req.query
+    const user = await User.findOne({ email })
+    if (!user) return next(new errHandler("Couldn't find any user with this email"))
+    const isExists = await resetPassword.findOne({ userIty: user.userIty })
+    let sendOtp;
+    if (!isExists) {
+        const newResetPassDoc = await resetPassword.create({ userIty: user.userIty, oneTimePassword: generateUniqueNumbers(6) })
+        sendOtp = await newResetPassDoc.setOtp({ new: true })
+    } else {
+
+        if (isExists.expiryTime < Date.now()) {
+            isExists.expiryTime = Date.now() + (60 * 60 * 1000)
+            isExists.attemptsLeft = 3
+            await isExists.save()
+        }
+
+        if (isExists.attemptsLeft === 0) return next(new errHandler("Maximum attempts reached, try again in 1 hour."))
+
+        sendOtp = await isExists.setOtp({ new: true })
+    }
+    sendResetPasswordEmail(user.email, sendOtp.oneTimePassword, user.name)
+
+    res.status(200).json({ success: true, message: "OTP sent, Check your registered email !" })
+})
+
+export const resetPass = catchAsyncError(async (req, res, next) => {
+
+    const { mail: email, otp: oneTimePassword } = req.query
+    const { newPass } = req.body
+    const user = await User.findOne({ email }).select("+password")
+    if (!user) return next(new errHandler("Couldn't find any user with this email."))
+    const isExists = await resetPassword.findOne({ userIty: user.userIty })
+
+    if (!isExists) return next(new errHandler("No reset-password request found for this user."))
+
+    if (Date.now() > isExists.expiryTime) return next(new errHandler("Request timeout, kindly place a new request."))
+    if (oneTimePassword !== isExists.oneTimePassword) return next(new errHandler("OTP is incorrect, please try again."))
+    if (!newPass && oneTimePassword === isExists.oneTimePassword) return res.status(200).json({ success: true, message: "OTP is verified successfully!" })
+
+    const hashedPassword = await bcrypt.hash(newPass, 14)
+    user.password = hashedPassword
+    await user.save()
+
+    return res.status(200).json({ success: true, message: "Password changed successfully!" })
 })
 
 export const updateProp = catchAsyncError(async (req, res, next) => {

@@ -35,6 +35,8 @@ The following are the available endpoints for the API:
 - **GET /api/v1/users/logout**: Logout a user and delete the access token.
 - **GET /api/v1/users/confirm_email**: Send an email to confirm the user account.
 - **POST /api/v1/users/confirm_email**: Authenticate the token to confirm the user and verify the account.
+- **GET /api/v1/users/reset_password**: Send an email to reset the user's password.
+- **POST /api/v1/users/reset_password**: Authenticate the OTP to verify the user and reset the password.
 - **GET /api/v1/users/me**: Retrieve details of a logged-in user.
 - **DELETE /api/v1/users/me**: Delete a user account.
 
