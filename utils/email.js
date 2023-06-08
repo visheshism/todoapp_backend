@@ -21,7 +21,7 @@ export const sendConfirmationEmail = async (url, receiverEmail, token, mode, nam
     <div style="background-color:white;padding:20px;border-radius:5px">
       <h1 style="font-size:24px;color:purple">Confirm your email address</h1>
       <p style="font-size:16px">Please click the following link to confirm your email address:</p>
-      <a href="${url}?user=${receiverEmail}&token=${token}" style="background-color:#4caf50;color:white;padding:15px 20px;font-size:18px;text-decoration:none;margin:10px;width:120px;display:inline-block;border-radius:5px" target="_blank">Confirm Email</a>
+      <a href="${url}?user=${receiverEmail}&token=${token}&expTime=${Date.now() + (60 * 60 * 1000)}" style="background-color:#4caf50;color:white;padding:15px 20px;font-size:18px;text-decoration:none;margin:10px;width:120px;display:inline-block;border-radius:5px" target="_blank">Confirm Email</a>
       <h3 style="color:green">This link expires in 1 hour.</h3>
     </div>
   </div>
