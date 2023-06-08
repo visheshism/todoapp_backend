@@ -137,6 +137,7 @@ export const searchTodos = async (req, res, next) => {
 
         if (!findTodos || findTodos.length === 0) return next(new errHandler(categ && `Couldn't find any Todos with category ${categ}` || "Couldn't find any Todos"))
 
+        await SearchQuery.addSearch(userIty, query)
         res.status(200).json({ success: true, todos: findTodos })
     } catch (error) {
         next(new errHandler(error.message))
