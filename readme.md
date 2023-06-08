@@ -42,6 +42,7 @@ The following are the available endpoints for the API:
 
 ### Search Query
 - **GET /api/v1/search**: Search todos based on specific criteria.
+- **GET /api/v1/recent-searches**: Returns the five most recent searches. Optionally, use the length query parameter to specify a custom number of recent searches.
 
 ## Authentication and Authorization
 This API uses Cookie-based Authentication.

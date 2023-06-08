@@ -1,5 +1,5 @@
 import express from "express";
-import { createTodo, deleteAllByCateg, deleteTodo, getAllByCateg, getAllTodos, getTodo, searchTodos, updateTodo } from "../controllers/todo.js";
+import { createTodo, deleteAllByCateg, deleteTodo, getAllByCateg, getAllTodos, getTodo, searchTodos, recentlySearchedTodos, updateTodo } from "../controllers/todo.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
 const TodoRouter = express.Router()
@@ -17,5 +17,6 @@ TodoRouter.route("/todos/:categ_name")
     .delete(isAuthenticated, deleteAllByCateg)
 
 TodoRouter.get("/search", isAuthenticated, searchTodos)
+TodoRouter.get("/recent-searches", isAuthenticated, recentlySearchedTodos)
 
 export default TodoRouter

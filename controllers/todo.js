@@ -1,6 +1,7 @@
 import { errHandler } from "../middlewares/error.js";
 import { Categ } from "../models/category.js";
 import { Todo } from "../models/todo.js";
+import { SearchQuery } from "../models/search_query.js";
 import { genTodoIty, currentDateTime } from "../utils/features.js";
 
 export const createTodo = async (req, res, next) => {
@@ -139,6 +140,30 @@ export const searchTodos = async (req, res, next) => {
 
         await SearchQuery.addSearch(userIty, query)
         res.status(200).json({ success: true, todos: findTodos })
+    } catch (error) {
+        next(new errHandler(error.message))
+    }
+}
+
+export const recentlySearchedTodos = async (req, res, next) => {
+    try {
+        const userIty = req.Ity
+        const { number } = req.query
+        const isExists = await SearchQuery.findOne({ userIty })
+        if (!isExists || isExists.searchQuery.length === 0) return next(new errHandler("No searches were made by this user."))
+
+        if (!number) return res.status(200).json({ success: true, recentSearches: isExists.searchQuery.slice(0, 5) })
+
+        const parsedNumber = parseInt(number)
+        if (isNaN(parsedNumber) || parsedNumber <= 0) return next(new errHandler("Invalid number parameter."))
+
+        res.status(200).json({
+            success: true,
+            ...(parsedNumber > isExists.searchQuery.length && {
+                message: `Could not find ${parsedNumber} searches. Here are the available recent searches:`,
+            }),
+            recentSearches: isExists.searchQuery.slice(0, parsedNumber),
+        })
     } catch (error) {
         next(new errHandler(error.message))
     }
