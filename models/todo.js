@@ -9,9 +9,11 @@ const commonProps = {
 const schema = new mongoose.Schema({
     title: {
         ...commonProps,
+        maxLength: 80,
     },
     description: {
         ...commonProps,
+        maxLength: 400,
     },
     isCompleted: {
         type: Boolean,
