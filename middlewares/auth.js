@@ -32,7 +32,8 @@ export const isAuthenticated = catchAsyncError(async (req, res, next) => {
     const Ity = jwt.verify(__xh_ui.split("s$&xh%h")[0], JWT_SECRET) + jwt.verify(_ux__zq.split("e^#~y")[1], JWT_SECRET)
     const user = await User.findOne({ userIty: Ity })
 
-    if (!user) return res.cookie("__xh_ui", "", { maxAge: 0 }).cookie("_py__lo_", "", { maxAge: 0 }).cookie("_ux__zq", "", { maxAge: 0 }).status(400).json({ success: false, message: "Log In first" })
+    if (!user) return res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(400).json({ success: false, message: "Log In first" })
+    
     req.Ity = Ity
     res.cookie("__xh_ui", __xh_ui, {
         maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
