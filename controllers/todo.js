@@ -73,7 +73,7 @@ export const getAllTodos = async (req, res, next) => {
 
         if (!todos || todos.length == 0) return next(new errHandler("Couldn't find any Todos !", 404))
 
-        res.status(200).json({ success: true, todos })
+        res.status(200).json({ success: true, todos: todos.reverse() })
 
     } catch (error) {
         next(new errHandler(error.message, 400))
@@ -92,7 +92,7 @@ export const getAllByCateg = async (req, res, next) => {
 
         if (!todos || todos.length == 0) return next(new errHandler("Couldn't find any Todos !", 404))
 
-        res.status(200).json({ success: true, todos })
+        res.status(200).json({ success: true, todos: todos.reverse() })
 
     } catch (error) {
         next(new errHandler(error.message, 400))
@@ -135,10 +135,11 @@ export const searchTodos = async (req, res, next) => {
             ...(categ ? { categ } : {})
         })
             .select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
-
+            
+        await SearchQuery.addSearch(userIty, query)
+            
         if (!findTodos || findTodos.length === 0) return next(new errHandler(categ && `Couldn't find any Todos with category ${categ}` || "Couldn't find any Todos"))
 
-        await SearchQuery.addSearch(userIty, query)
         res.status(200).json({ success: true, todos: findTodos })
     } catch (error) {
         next(new errHandler(error.message))
@@ -152,7 +153,7 @@ export const recentlySearchedTodos = async (req, res, next) => {
         const isExists = await SearchQuery.findOne({ userIty })
         if (!isExists || isExists.searchQuery.length === 0) return next(new errHandler("No searches were made by this user."))
 
-        if (!number) return res.status(200).json({ success: true, recentSearches: isExists.searchQuery.slice(0, 5) })
+        if (!number) return res.status(200).json({ success: true, recentSearches: isExists.searchQuery.reverse().slice(0, 5) })
 
         const parsedNumber = parseInt(number)
         if (isNaN(parsedNumber) || parsedNumber <= 0) return next(new errHandler("Invalid number parameter."))
@@ -162,7 +163,7 @@ export const recentlySearchedTodos = async (req, res, next) => {
             ...(parsedNumber > isExists.searchQuery.length && {
                 message: `Could not find ${parsedNumber} searches. Here are the available recent searches:`,
             }),
-            recentSearches: isExists.searchQuery.slice(0, parsedNumber),
+            recentSearches: isExists.searchQuery.reverse().slice(0, parsedNumber),
         })
     } catch (error) {
         next(new errHandler(error.message))
