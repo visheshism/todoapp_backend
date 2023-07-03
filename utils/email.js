@@ -16,12 +16,13 @@ export const sendConfirmationEmail = async (url, receiverEmail, token, mode, nam
       },
     })
 
+    const userConfirmationUrl=`${url}?user=${receiverEmail}&token=${token}&expTime=${Date.now() + (60 * 60 * 1000)}`
     const confirmUser = `<div style="background-color:#f0f0f0;padding:20px;text-align:center;font-family:sans-serif">
   <div style="max-width:600px;margin:0 auto">
     <div style="background-color:white;padding:20px;border-radius:5px">
       <h1 style="font-size:24px;color:purple">Confirm your email address</h1>
       <p style="font-size:16px">Please click the following link to confirm your email address:</p>
-      <a href="${url}?user=${receiverEmail}&token=${token}&expTime=${Date.now() + (60 * 60 * 1000)}" style="background-color:#4caf50;color:white;padding:15px 20px;font-size:18px;text-decoration:none;margin:10px;width:120px;display:inline-block;border-radius:5px" target="_blank">Confirm Email</a>
+      <a href="${userConfirmationUrl}" style="background-color:#4caf50;color:white;padding:15px 20px;font-size:18px;text-decoration:none;margin:10px;min-width:120px;display:inline-block;border-radius:5px" target="_blank">Confirm Email</a>
       <h3 style="color:green">This link expires in 1 hour.</h3>
     </div>
   </div>
@@ -58,7 +59,7 @@ export const sendConfirmationEmail = async (url, receiverEmail, token, mode, nam
   }
 }
 
-export const sendResetPasswordEmail = async (receiverEmail, OTP, name) => {
+export const sendResetPasswordEmail = async (receiverEmail, OTP, name, url) => {
   const html = `<html>
   <head>
     <style>
@@ -78,10 +79,12 @@ export const sendResetPasswordEmail = async (receiverEmail, OTP, name) => {
   <table style="width: 100%;">
   <tr>
     <td style="text-align: center; vertical-align: middle;">
+      <a href="${url}" style="text-decoration: none;">
       <h2 class="font-Geo" style="width: 100%; letter-spacing: 0.05em; font-size: 1.125rem; line-height: 1.75rem; color: white; font-weight: 500; margin: 0;">
         <img src="https://i.ibb.co/qWmyTF2/todosapp-logo-dimensions.png" alt="TodosApp" style="display: inline-block; height: 48px; width: 48px; vertical-align: middle;">
         TodosApp
       </h2>
+      </a>
     </td>
   </tr>
 </table>
