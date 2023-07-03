@@ -6,7 +6,8 @@ import { User } from "../models/user.js";
 import bcrypt from "bcrypt";
 import { genRandom, genUserIty, currentDateTime } from "../utils/features.js";
 import { confirmEmail } from "../models/confirm_email.js";
-import { sendConfirmationEmail } from "../utils/email.js";
+import { resetPassword } from "../models/reset_password.js";
+import { sendConfirmationEmail, sendResetPasswordEmail } from "../utils/email.js";
 
 export const createUser = catchAsyncError(async (req, res, next) => {
     const { name, email, password } = req.body
@@ -18,7 +19,7 @@ export const createUser = catchAsyncError(async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 14)
     await User.create({ name, email, password: hashedPassword, userIty: genUserIty() })
 
-    res.cookie("__xh_ui", "", { maxAge: 0 }).cookie("_py__lo_", "", { maxAge: 0 }).cookie("_ux__zq", "", { maxAge: 0 }).status(200).json({ success: true, message: "Successfully registered ! Please Log In" })
+    res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(200).json({ success: true, message: "Successfully registered ! Please Log In" })
 })
 
 export const userLogin = catchAsyncError(async (req, res, next) => {
@@ -42,8 +43,7 @@ export const userLogin = catchAsyncError(async (req, res, next) => {
 })
 
 export const userConfirmationMail = catchAsyncError(async (req, res, next) => {
-    const { mail: email } = req.query
-    const { url } = req.body
+    const { mail: email, url } = req.query
     const user = await User.findOne({ email })
     if (!user) return next(new errHandler("Couldn't find any user with this email"))
     if (user.confirmed === true) return next(new errHandler("User is already confirmed"))
@@ -61,7 +61,7 @@ export const userConfirmationMail = catchAsyncError(async (req, res, next) => {
     let message;
 
     confirm_email.attempt === 2 ? message = "Confirmation mail sent, One more attempt left !" : confirm_email.attempt === 1 ? message = "Confirmation mail sent, No more attempts left !" : null
-    sendConfirmationEmail(url, user.email, confirm_email.token, 0, "")
+    sendConfirmationEmail(decodeURIComponent(url), user.email, confirm_email.token, 0, "")
 
     res.status(200).json({
         success: true,
@@ -98,7 +98,7 @@ export const confirmUser = catchAsyncError(async (req, res, next) => {
 })
 
 export const resetPasswordEmail = catchAsyncError(async (req, res, next) => {
-    const { mail: email } = req.query
+    const { mail: email, url } = req.query
     const user = await User.findOne({ email })
     if (!user) return next(new errHandler("Couldn't find any user with this email"))
     const isExists = await resetPassword.findOne({ userIty: user.userIty })
@@ -118,7 +118,7 @@ export const resetPasswordEmail = catchAsyncError(async (req, res, next) => {
 
         sendOtp = await isExists.setOtp({ new: true })
     }
-    sendResetPasswordEmail(user.email, sendOtp.oneTimePassword, user.name)
+    sendResetPasswordEmail(user.email, sendOtp.oneTimePassword, user.name, url)
 
     res.status(200).json({ success: true, message: "OTP sent, Check your registered email !" })
 })
@@ -136,6 +136,8 @@ export const resetPass = catchAsyncError(async (req, res, next) => {
     if (Date.now() > isExists.expiryTime) return next(new errHandler("Request timeout, kindly place a new request."))
     if (oneTimePassword !== isExists.oneTimePassword) return next(new errHandler("OTP is incorrect, please try again."))
     if (!newPass && oneTimePassword === isExists.oneTimePassword) return res.status(200).json({ success: true, message: "OTP is verified successfully!" })
+    const isPassMatch = await bcrypt.compare(newPass, user.password)
+    if (isPassMatch) return next(new errHandler("New password can't be same as the old one.", 400))
 
     const hashedPassword = await bcrypt.hash(newPass, 14)
     user.password = hashedPassword
@@ -147,13 +149,20 @@ export const resetPass = catchAsyncError(async (req, res, next) => {
 export const updateProp = catchAsyncError(async (req, res, next) => {
     const { q: prop } = req.query
     const userIty = req.Ity
-    const { newName, newPass } = req.body
+    const { newName, currentPass, newPass } = req.body
     const user = await User.findOne({ userIty }).select("+password")
     if (!user) return next(new errHandler("User doesn't exist", 404))
     let hashedPassword;
     if (prop === "password" || prop === "name") {
 
-        if (prop === "password") { hashedPassword = await bcrypt.hash(newPass, 14) }
+        if (prop === "password") {
+            if (!currentPass || !newPass) return next(new errHandler("Current password or new password field is empty", 400))    
+            const currentPassMatch = await bcrypt.compare(currentPass, user.password)
+            if(!currentPassMatch) return next(new errHandler("Invalid current password, please try again.", 400))
+            const isPassMatch = await bcrypt.compare(newPass, user.password)
+            if (isPassMatch) return next(new errHandler("New password can't be same as the old one.", 400))    
+            hashedPassword = await bcrypt.hash(newPass, 14) 
+         }
 
         prop === "name" ? user.name = newName : prop === "password" ? user.password = hashedPassword : null
         await user.save()
