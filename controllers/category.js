@@ -4,7 +4,8 @@ import { Categ } from "../models/category.js";
 import { Todo } from "../models/todo.js";
 
 export const createCateg = catchAsyncError(async (req, res, next) => {
-    const { Ity: userIty, categ: newCateg } = req.body
+    const userIty = req.Ity
+    const { categ: newCateg } = req.body
     const categDocument = await Categ.findOne({ userIty })
 
     if (categDocument) {
@@ -27,7 +28,7 @@ export const createCateg = catchAsyncError(async (req, res, next) => {
 
 
 export const getCategs = catchAsyncError(async (req, res, next) => {
-    const { Ity: userIty } = req.body
+    const userIty = req.Ity
     const categDocument = await Categ.findOne({ userIty }).select("-__v -_id -userIty")
 
     if (!categDocument) return next(new errHandler("No categories found !", 400))
@@ -41,7 +42,8 @@ export const getCategs = catchAsyncError(async (req, res, next) => {
 
 
 export const updateCateg = catchAsyncError(async (req, res, next) => {
-    const { Ity: userIty, categ, newCateg } = req.body
+    const userIty = req.Ity
+    const { categ, newCateg } = req.body
     const categDocument = await Categ.findOne({ userIty })
 
     if (!categDocument) return next(new errHandler("No categories found !", 400))
@@ -50,6 +52,7 @@ export const updateCateg = catchAsyncError(async (req, res, next) => {
 
     if (categDocument && categDocument.categs.includes(newCateg)) return next(new errHandler("New category already in use", 400))
 
+    await Todo.updateMany({ userIty, categ }, { categ: newCateg })
     categDocument.categs = categDocument.categs.map(category => category === categ ? newCateg : category)
 
     const { categs } = await categDocument.save({ new: true })
@@ -58,16 +61,17 @@ export const updateCateg = catchAsyncError(async (req, res, next) => {
 })
 
 export const deleteCateg = catchAsyncError(async (req, res, next) => {
-    const { Ity: userIty, categ } = req.body
+    const userIty = req.Ity
+    const { categ } = req.body
     const categDocument = await Categ.findOne({ userIty })
 
     if (!categDocument) return next(new errHandler("No categories found !", 400))
 
     if (categDocument && !categDocument.categs.includes(categ)) return next(new errHandler("Category doesn't exist", 400))
 
-    categDocument.categs = categDocument.categs.filter(category => category !== categ)
-
     await Todo.deleteMany({ userIty, categ })
+    
+    categDocument.categs = categDocument.categs.filter(category => category !== categ)
     const { categs } = await categDocument.save({ new: true })
 
     res.status(200).json({ success: true, message: "Category Deleted", categs })
