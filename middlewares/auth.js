@@ -14,11 +14,11 @@ export const setCookie = catchAsyncError((req, res, next) => {
         const _py__lo_ = genRandom(44)
         const _ux__zq = genRandom(12) + "e^#~y" + jwt.sign(identifier.substring(identifier.length / 2), JWT_SECRET)
         res.cookie("__xh_ui", __xh_ui, {
-            maxAge: 90 * 60 * 1000,
+            maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
         }).cookie("_py__lo_", _py__lo_, {
-            maxAge: 90 * 60 * 1000,
+            maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
         }).cookie("_ux__zq", _ux__zq, {
-            maxAge: 90 * 60 * 1000,
+            maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
         }).json({ success: true, message: "Successfully Logged In" })
     } catch (error) {
         console.log(error)
@@ -27,19 +27,19 @@ export const setCookie = catchAsyncError((req, res, next) => {
 
 export const isAuthenticated = catchAsyncError(async (req, res, next) => {
     const { __xh_ui, _py__lo_, _ux__zq } = req.cookies
-    if (!__xh_ui || !_py__lo_ || !_ux__zq) return res.cookie("__xh_ui", "", { maxAge: 0 }).cookie("_py__lo_", "", { maxAge: 0 }).cookie("_ux__zq", "", { maxAge: 0 }).status(400).json({ success: false, message: "Log In first" })
+    if (!__xh_ui || !_py__lo_ || !_ux__zq) return res.cookie("__xh_ui", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true, }).cookie("_py__lo_", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true, }).cookie("_ux__zq", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true, }).status(400).json({ success: false, message: "Log In first" })
 
     const Ity = jwt.verify(__xh_ui.split("s$&xh%h")[0], JWT_SECRET) + jwt.verify(_ux__zq.split("e^#~y")[1], JWT_SECRET)
     const user = await User.findOne({ userIty: Ity })
 
-    if (!user) return res.cookie("__xh_ui", "", { maxAge: 0 }).cookie("_py__lo_", "", { maxAge: 0 }).cookie("_ux__zq", "", { maxAge: 0 }).status(400).json({ success: true, message: "Log In first" })
+    if (!user) return res.cookie("__xh_ui", "", { maxAge: 0 }).cookie("_py__lo_", "", { maxAge: 0 }).cookie("_ux__zq", "", { maxAge: 0 }).status(400).json({ success: false, message: "Log In first" })
     req.Ity = Ity
     res.cookie("__xh_ui", __xh_ui, {
-        maxAge: 90 * 60 * 1000,
+        maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
     }).cookie("_py__lo_", _py__lo_, {
-        maxAge: 90 * 60 * 1000,
+        maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
     }).cookie("_ux__zq", _ux__zq, {
-        maxAge: 90 * 60 * 1000,
+        maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
     })
     next()
 })
