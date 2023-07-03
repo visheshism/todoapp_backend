@@ -10,7 +10,7 @@ export const App = express()
 
 //middlewares
 App.use(express.json())
-App.use(cookieParser(JWT_SECRET, { sameSite: 'none' }))
+App.use(cookieParser())
 App.use(cors(corsOptions))
 
 //Router
