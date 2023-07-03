@@ -188,7 +188,7 @@ export const deleteUser = catchAsyncError(async (req, res, next) => {
     await Todo.deleteMany({ userIty })
     await Categ.deleteOne({ userIty })
     await User.deleteOne({ userIty, _id: user._id })
-    res.cookie("__xh_ui", "", { maxAge: 0 }).cookie("_py__lo_", "", { maxAge: 0 }).cookie("_ux__zq", "", { maxAge: 0 }).status(200).json({ success: true, message: "User Deleted !" })
+    res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(200).json({ success: true, message: "User Deleted !" })
 })
 
 export const logoutUser = catchAsyncError(async (req, res, next) => {
@@ -196,5 +196,5 @@ export const logoutUser = catchAsyncError(async (req, res, next) => {
     const user = await User.findOne({ userIty })
 
     if (!user) return next(new errHandler("User doesn't exist", 404))
-    res.cookie("__xh_ui", "", { maxAge: 0 }).cookie("_py__lo_", "", { maxAge: 0 }).cookie("_ux__zq", "", { maxAge: 0 }).status(200).json({ success: true, message: "User Logged Out !" })
+    res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(200).json({ success: true, message: "User Logged Out !" })
 })
