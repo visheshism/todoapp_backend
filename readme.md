@@ -23,7 +23,7 @@ The following are the available endpoints for the API:
 - **DELETE /api/v1/todo**: Delete a todo by its identifier: 'meIty'.
 
 ### Categories
-- **GET /api/v1/categ**: Retrieve a specific category by name.
+- **GET /api/v1/categ**: Retrieve a list of all categories.
 - **POST /api/v1/categ**: Create a new category.
 - **PUT /api/v1/categ**: Update an existing category by name.
 - **DELETE /api/v1/categ**: Delete a category by name.
