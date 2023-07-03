@@ -27,7 +27,7 @@ const schema = mongoose.Schema({
 })
 
 schema.methods.setOtp = async function () {
-    this.oneTimePassword = generateUniqueNumbers(6)
+    this.oneTimePassword = generateUniqueNumbers(4)
     this.attemptsLeft -= 1
     this.expiryTime = Date.now() + (60 * 60 * 1000)
     await this.save()
