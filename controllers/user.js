@@ -4,7 +4,7 @@ import { Categ } from "../models/category.js";
 import { Todo } from "../models/todo.js";
 import { User } from "../models/user.js";
 import bcrypt from "bcrypt";
-import { genRandom, genUserIty, currentDateTime } from "../utils/features.js";
+import { genRandom, genUserIty, currentDateTime, generateUniqueNumbers } from "../utils/features.js";
 import { confirmEmail } from "../models/confirm_email.js";
 import { resetPassword } from "../models/reset_password.js";
 import { sendConfirmationEmail, sendResetPasswordEmail } from "../utils/email.js";
