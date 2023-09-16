@@ -12,7 +12,7 @@ export const createCateg = catchAsyncError(async (req, res, next) => {
         if (categDocument.categs.includes(newCateg)) {
             return next(new errHandler("Category Already Exists", 400))
         } else {
-            await categDocument.categs.push(newCateg)
+            categDocument.categs.push(newCateg)
             await categDocument.save()
         }
     } else {
@@ -48,9 +48,7 @@ export const updateCateg = catchAsyncError(async (req, res, next) => {
 
     if (!categDocument) return next(new errHandler("No categories found !", 400))
 
-    if (categDocument && !categDocument.categs.includes(categ)) return next(new errHandler("Category doesn't exist", 400))
-
-    if (categDocument && categDocument.categs.includes(newCateg)) return next(new errHandler("New category already in use", 400))
+    if (!categDocument.categs.includes(categ) || categDocument.categs.includes(newCateg)) return next(new errHandler(!categDocument.categs.includes(categ) ? "Category doesn't exist" : "New category already in use", 400))
 
     await Todo.updateMany({ userIty, categ }, { categ: newCateg })
     categDocument.categs = categDocument.categs.map(category => category === categ ? newCateg : category)
@@ -67,10 +65,10 @@ export const deleteCateg = catchAsyncError(async (req, res, next) => {
 
     if (!categDocument) return next(new errHandler("No categories found !", 400))
 
-    if (categDocument && !categDocument.categs.includes(categ)) return next(new errHandler("Category doesn't exist", 400))
+    if (!categDocument.categs.includes(categ)) return next(new errHandler("Category doesn't exist", 400))
 
     await Todo.deleteMany({ userIty, categ })
-    
+
     categDocument.categs = categDocument.categs.filter(category => category !== categ)
     const { categs } = await categDocument.save({ new: true })
 
