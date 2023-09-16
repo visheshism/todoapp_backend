@@ -19,7 +19,7 @@ export const createUser = catchAsyncError(async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 14)
     await User.create({ name, email, password: hashedPassword, userIty: genUserIty() })
 
-    res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(200).json({ success: true, message: "Successfully registered ! Please Log In" })
+    res.cookie("__xh_ui", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_py__lo_", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_ux__zq", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).status(200).json({ success: true, message: "Successfully registered ! Please Log In" })
 })
 
 export const userLogin = catchAsyncError(async (req, res, next) => {
@@ -55,7 +55,7 @@ export const userConfirmationMail = catchAsyncError(async (req, res, next) => {
         return res.status(200).json({ success: true, message: "Confirmation mail sent, Check your registered email ! ", confirmEmailDoc: newConfirmEmailDoc })
     }
 
-    const confirm_email = await isExists.setInfo({ new: true })
+    const confirm_email = await isExists.setInfo()
 
     if (confirm_email.attempt === 0) return next(new errHandler("Maximum attempts exceeded, please contact Administrator"))
     let message;
@@ -83,7 +83,7 @@ export const confirmUser = catchAsyncError(async (req, res, next) => {
 
     if (!isExists) return next(new errHandler("Invalid request"))
 
-    if (isExists && isExists.expiry_time >= Date.now()) {
+    if (isExists.expiry_time >= Date.now()) {
         if (isExists.token !== token) return next(new errHandler("Invalid token"))
 
         user.confirmed = true; await user.save();
@@ -105,7 +105,7 @@ export const resetPasswordEmail = catchAsyncError(async (req, res, next) => {
     let sendOtp;
     if (!isExists) {
         const newResetPassDoc = await resetPassword.create({ userIty: user.userIty, oneTimePassword: generateUniqueNumbers(6) })
-        sendOtp = await newResetPassDoc.setOtp({ new: true })
+        sendOtp = await newResetPassDoc.setOtp()
     } else {
 
         if (isExists.expiryTime < Date.now()) {
@@ -116,7 +116,7 @@ export const resetPasswordEmail = catchAsyncError(async (req, res, next) => {
 
         if (isExists.attemptsLeft === 0) return next(new errHandler("Maximum attempts reached, try again in 1 hour."))
 
-        sendOtp = await isExists.setOtp({ new: true })
+        sendOtp = await isExists.setOtp()
     }
     sendResetPasswordEmail(user.email, sendOtp.oneTimePassword, user.name, url)
 
@@ -156,13 +156,13 @@ export const updateProp = catchAsyncError(async (req, res, next) => {
     if (prop === "password" || prop === "name") {
 
         if (prop === "password") {
-            if (!currentPass || !newPass) return next(new errHandler("Current password or new password field is empty", 400))    
+            if (!currentPass || !newPass) return next(new errHandler("Current password or new password field is empty", 400))
             const currentPassMatch = await bcrypt.compare(currentPass, user.password)
-            if(!currentPassMatch) return next(new errHandler("Invalid current password, please try again.", 400))
+            if (!currentPassMatch) return next(new errHandler("Invalid current password, please try again.", 400))
             const isPassMatch = await bcrypt.compare(newPass, user.password)
-            if (isPassMatch) return next(new errHandler("New password can't be same as the old one.", 400))    
-            hashedPassword = await bcrypt.hash(newPass, 14) 
-         }
+            if (isPassMatch) return next(new errHandler("New password can't be same as the old one.", 400))
+            hashedPassword = await bcrypt.hash(newPass, 14)
+        }
 
         prop === "name" ? user.name = newName : prop === "password" ? user.password = hashedPassword : null
         await user.save()
@@ -188,7 +188,7 @@ export const deleteUser = catchAsyncError(async (req, res, next) => {
     await Todo.deleteMany({ userIty })
     await Categ.deleteOne({ userIty })
     await User.deleteOne({ userIty, _id: user._id })
-    res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(200).json({ success: true, message: "User Deleted !" })
+    res.cookie("__xh_ui", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_py__lo_", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_ux__zq", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).status(200).json({ success: true, message: "User Deleted !" })
 })
 
 export const logoutUser = catchAsyncError(async (req, res, next) => {
@@ -196,5 +196,5 @@ export const logoutUser = catchAsyncError(async (req, res, next) => {
     const user = await User.findOne({ userIty })
     if (!user) return next(new errHandler("User doesn't exist", 404))
 
-     res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(200).json({ success: true, message: "User Logged Out !" })
+    res.cookie("__xh_ui", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_py__lo_", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_ux__zq", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).status(200).json({ success: true, message: "User Logged Out !" })
 })
