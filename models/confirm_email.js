@@ -28,8 +28,8 @@ schema.methods.setInfo = async function () {
         this.token = genRandom(32)
         this.expiry_time = Date.now() + (60 * 60 * 1000)
         this.attempt -= 1
+        await this.save({ new: true })
     }
-    await this.save()
     return this
 }
 

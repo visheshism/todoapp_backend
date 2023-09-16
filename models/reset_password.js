@@ -30,8 +30,7 @@ schema.methods.setOtp = async function () {
     this.oneTimePassword = generateUniqueNumbers(4)
     this.attemptsLeft -= 1
     this.expiryTime = Date.now() + (60 * 60 * 1000)
-    await this.save()
-    return this
+    return await this.save({ new: true })
 }
 
 export const resetPassword = mongoose.model("reset_pass", schema, "resetPassword")
