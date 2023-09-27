@@ -12,7 +12,7 @@ const schema = new mongoose.Schema({
         maxLength: 80,
     },
     description: {
-        ...commonProps,
+        type: String,
         maxLength: 400,
     },
     isCompleted: {
