@@ -2,6 +2,7 @@ import { JWT_SECRET } from "../data/env.js";
 import { User } from "../models/user.js";
 import { genRandom } from "../utils/features.js";
 import { catchAsyncError } from "./catchAsyncError.js";
+import { cookieExpiryTime as cookieMaxAge } from "../App.js";
 import jwt from "jsonwebtoken";
 
 export const setCookie = catchAsyncError((req, res, next) => {
@@ -14,11 +15,11 @@ export const setCookie = catchAsyncError((req, res, next) => {
         const _py__lo_ = genRandom(44)
         const _ux__zq = genRandom(12) + "e^#~y" + jwt.sign(identifier.substring(identifier.length / 2), JWT_SECRET)
         res.cookie("__xh_ui", __xh_ui, {
-            maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
+            maxAge: cookieMaxAge, sameSite: 'none', secure: true, httpOnly: true,
         }).cookie("_py__lo_", _py__lo_, {
-            maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
+            maxAge: cookieMaxAge, sameSite: 'none', secure: true, httpOnly: true,
         }).cookie("_ux__zq", _ux__zq, {
-            maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
+            maxAge: cookieMaxAge, sameSite: 'none', secure: true, httpOnly: true,
         }).json({ success: true, message: "Successfully Logged In" })
     } catch (error) {
         console.log(error)
@@ -32,15 +33,15 @@ export const isAuthenticated = catchAsyncError(async (req, res, next) => {
     const Ity = jwt.verify(__xh_ui.split("s$&xh%h")[0], JWT_SECRET) + jwt.verify(_ux__zq.split("e^#~y")[1], JWT_SECRET)
     const user = await User.findOne({ userIty: Ity })
 
-    if (!user) return res.cookie("__xh_ui", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_py__lo_", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).cookie("_ux__zq", "", { maxAge: 0, sameSite:'none', secure:true, httpOnly:true }).status(400).json({ success: false, message: "Log In first" })
-    
+    if (!user) return res.cookie("__xh_ui", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_py__lo_", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_ux__zq", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).status(400).json({ success: false, message: "Log In first" })
+
     req.Ity = Ity
     res.cookie("__xh_ui", __xh_ui, {
-        maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
+        maxAge: cookieMaxAge, sameSite: 'none', secure: true, httpOnly: true,
     }).cookie("_py__lo_", _py__lo_, {
-        maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
+        maxAge: cookieMaxAge, sameSite: 'none', secure: true, httpOnly: true,
     }).cookie("_ux__zq", _ux__zq, {
-        maxAge: 90 * 60 * 1000, sameSite: 'none', secure: true, httpOnly: true,
+        maxAge: cookieMaxAge, sameSite: 'none', secure: true, httpOnly: true,
     })
     next()
 })

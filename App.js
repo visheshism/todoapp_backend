@@ -8,6 +8,8 @@ import { corsOptions } from "./data/cors.js";
 
 export const App = express()
 
+export const cookieExpiryTime = 3 * 24 * 60 * 60 * 1000 // 3 Days
+
 //middlewares
 App.use(express.json())
 App.use(cookieParser())
