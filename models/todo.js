@@ -63,4 +63,4 @@ const adminSchema = new mongoose.Schema({
 })
 
 export const Todo = mongoose.model("Todos", schema, "todos")
-export const AdminTodo = mongoose.model("Todos", adminSchema, "todos")
+export const AdminTodo = mongoose.model("AdminTodos", adminSchema, "todos")
