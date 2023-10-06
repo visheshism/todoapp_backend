@@ -7,13 +7,13 @@ import { genTodoIty, currentDateTime } from "../utils/features.js";
 export const createTodo = async (req, res, next) => {
     try {
         const userIty = req.Ity
-        const meIty = genTodoIty()
+        let meIty = genTodoIty()
         const { title, description, categ } = req.body
         const ifTodoExists = await Todo.findOne({ meIty, userIty })
 
-        if (ifTodoExists) return next(new errHandler("Todo already exists with the given data", 404))
+        if (ifTodoExists) meIty = genTodoIty()
 
-        const createNewTodo = !ifTodoExists && await Todo.create({ title, description, userIty, meIty, categ, })
+        const createNewTodo = await Todo.create({ title, description, userIty, meIty, categ, })
 
         const todo = createNewTodo && await Todo.findOne({ meIty }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
         res.status(200).json({ success: true, todo })
