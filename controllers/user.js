@@ -1,7 +1,6 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import { errHandler } from "../middlewares/error.js";
 import { Categ } from "../models/category.js";
-import { Todo } from "../models/todo.js";
 import { User } from "../models/user.js";
 import bcrypt from "bcrypt";
 import { genRandom, genUserIty, currentDateTime, generateUniqueNumbers } from "../utils/features.js";
@@ -177,15 +176,17 @@ export const getUserDetails = catchAsyncError(async (req, res, next) => {
     const user = await User.findOne({ userIty }).select("-_id -__v -userIty -lastLoggedIn")
     if (!user) return next(new errHandler("User doesn't exist", 404))
 
-    res.status(200).json({ success: true, User: user })
+    res.status(200).json({ success: true, User: user, isAdmin: req.adminStatus })
 })
 
 export const deleteUser = catchAsyncError(async (req, res, next) => {
     const userIty = req.Ity
     const user = await User.findOne({ userIty })
     if (!user) return next(new errHandler("User doesn't exist", 404))
+    
+    const TodoModel = req.TodoModel
 
-    await Todo.deleteMany({ userIty })
+    await TodoModel.deleteMany({ userIty })
     await Categ.deleteOne({ userIty })
     await User.deleteOne({ userIty, _id: user._id })
     res.cookie("__xh_ui", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_py__lo_", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).cookie("_ux__zq", "", { maxAge: 0, sameSite: 'none', secure: true, httpOnly: true }).status(200).json({ success: true, message: "User Deleted !" })

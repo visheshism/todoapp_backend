@@ -1,6 +1,5 @@
 import { errHandler } from "../middlewares/error.js";
 import { Categ } from "../models/category.js";
-import { Todo } from "../models/todo.js";
 import { SearchQuery } from "../models/search_query.js";
 import { genTodoIty, currentDateTime } from "../utils/features.js";
 
@@ -9,13 +8,16 @@ export const createTodo = async (req, res, next) => {
         const userIty = req.Ity
         let meIty = genTodoIty()
         const { title, description, categ } = req.body
-        const ifTodoExists = await Todo.findOne({ meIty, userIty })
+
+        const TodoModel = req.TodoModel
+
+        const ifTodoExists = await TodoModel.findOne({ meIty, userIty })
 
         if (ifTodoExists) meIty = genTodoIty()
 
-        const createNewTodo = await Todo.create({ title, description, userIty, meIty, categ, })
+        const createNewTodo = await TodoModel.create({ title, description, userIty, meIty, categ, })
 
-        const todo = createNewTodo && await Todo.findOne({ meIty }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
+        const todo = createNewTodo && await TodoModel.findOne({ meIty }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
         res.status(200).json({ success: true, todo })
     } catch (error) {
         next(new errHandler(error.message, 400))
@@ -26,7 +28,10 @@ export const getTodo = async (req, res, next) => {
     try {
         const userIty = req.Ity
         const { Ity: meIty } = req.body
-        const todo = await Todo.findOne({ meIty, userIty }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
+
+        const TodoModel = req.TodoModel
+
+        const todo = await TodoModel.findOne({ meIty, userIty }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
 
         if (!todo) return next(new errHandler("No todo Found !", 404))
 
@@ -41,7 +46,10 @@ export const updateTodo = async (req, res, next) => {
         const userIty = req.Ity
         const { updatedTodo } = req.body
         const { Ity: meIty } = updatedTodo
-        const todo = await Todo.findOneAndUpdate({ meIty, userIty }, { ...updatedTodo, modifiedAt: currentDateTime() }, { new: true }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
+
+        const TodoModel = req.TodoModel
+
+        const todo = await TodoModel.findOneAndUpdate({ meIty, userIty }, { ...updatedTodo, modifiedAt: currentDateTime() }, { new: true }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
 
         if (!todo) return next(new errHandler("Couldn't find a Todo with the given data", 404))
 
@@ -55,7 +63,10 @@ export const deleteTodo = async (req, res, next) => {
     try {
         const userIty = req.Ity
         const { Ity: meIty } = req.body
-        const todo = await Todo.findOne({ meIty, userIty })
+
+        const TodoModel = req.TodoModel
+        
+        const todo = await TodoModel.findOne({ meIty, userIty })
         if (!todo) return next(new errHandler("Couldn't find a Todo with the given data", 404))
 
         await todo.deleteOne()
@@ -69,7 +80,10 @@ export const deleteTodo = async (req, res, next) => {
 export const getAllTodos = async (req, res, next) => {
     try {
         const userIty = req.Ity
-        const todos = await Todo.find({ userIty }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
+
+        const TodoModel = req.TodoModel
+        
+        const todos = await TodoModel.find({ userIty }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
 
         if (!todos || todos.length == 0) return next(new errHandler("Couldn't find any Todos !", 404))
 
@@ -88,7 +102,9 @@ export const getAllByCateg = async (req, res, next) => {
 
         if (!categDocument || !categDocument.categs.includes(categ)) return next(new errHandler("Category doesn't exist", 400))
 
-        const todos = await Todo.find({ userIty, categ }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
+        const TodoModel = req.TodoModel
+
+        const todos = await TodoModel.find({ userIty, categ }).select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
 
         if (!todos || todos.length == 0) return next(new errHandler("Couldn't find any Todos !", 404))
 
@@ -108,11 +124,13 @@ export const deleteAllByCateg = async (req, res, next) => {
 
         if (!categDocument || !categDocument.categs.includes(categ)) return next(new errHandler("Category doesn't exist", 400))
 
-        const todos = await Todo.find({ userIty, categ })
+        const TodoModel = req.TodoModel
+
+        const todos = await TodoModel.find({ userIty, categ })
 
         if (!todos || todos.length == 0) return next(new errHandler("Couldn't find any Todos !", 404))
 
-        await Todo.deleteMany({ userIty, categ })
+        await TodoModel.deleteMany({ userIty, categ })
         res.status(200).json({ success: true, message: "Deleted todos !" })
 
     } catch (error) {
@@ -126,7 +144,9 @@ export const searchTodos = async (req, res, next) => {
         const { query, categ } = req.query
         if (!query) return next(new errHandler("Query parameter is needed to make a search"))
 
-        const findTodos = await Todo.find({
+        const TodoModel = req.TodoModel
+
+        const findTodos = await TodoModel.find({
             userIty,
             $or: [
                 { title: { $regex: query, $options: 'i' } },
@@ -135,9 +155,9 @@ export const searchTodos = async (req, res, next) => {
             ...(categ ? { categ } : {})
         })
             .select({ _id: 0, __v: 0, createdAt: 0, modifiedAt: 0, userIty: 0 })
-            
+
         await SearchQuery.addSearch(userIty, query)
-            
+
         if (!findTodos || findTodos.length === 0) return next(new errHandler(categ && `Couldn't find any Todos with category ${categ}` || "Couldn't find any Todos"))
 
         res.status(200).json({ success: true, todos: findTodos })

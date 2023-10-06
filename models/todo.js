@@ -6,7 +6,7 @@ const commonProps = {
     required: true,
 }
 
-const schema = new mongoose.Schema({
+const baseSchema = {
     title: {
         ...commonProps,
         maxLength: 80,
@@ -44,6 +44,23 @@ const schema = new mongoose.Schema({
         ...commonProps,
         default: currentDateTime(),
     }
+}
+
+const schema = new mongoose.Schema({
+    ...baseSchema
+})
+
+const adminSchema = new mongoose.Schema({
+    ...baseSchema,
+    title: {
+        ...baseSchema.title,
+        maxLength: 120,
+    },
+    description: {
+        ...baseSchema.description,
+        maxLength: 700,
+    }
 })
 
 export const Todo = mongoose.model("Todos", schema, "todos")
+export const AdminTodo = mongoose.model("Todos", adminSchema, "todos")

@@ -1,6 +1,7 @@
 import express from "express";
 import { createUser, deleteUser, getUserDetails, updateProp, userLogin, logoutUser, userConfirmationMail, confirmUser, resetPasswordEmail, resetPass } from "../controllers/user.js";
 import { alreadyLoggedIn, isAuthenticated, setCookie } from "../middlewares/auth.js";
+import { setModel } from "../middlewares/admin.js";
 
 const UserRouter = express.Router()
 
@@ -16,6 +17,6 @@ UserRouter.route("/confirm_email").get(userConfirmationMail).post(confirmUser)
 
 UserRouter.route("/reset_password").get(resetPasswordEmail).post(resetPass)
 
-UserRouter.route("/me").get(isAuthenticated, getUserDetails).delete(isAuthenticated, deleteUser)
+UserRouter.route("/me").get(isAuthenticated, getUserDetails).delete(isAuthenticated,setModel, deleteUser)
 
 export default UserRouter
